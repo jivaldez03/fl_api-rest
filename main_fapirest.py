@@ -43,7 +43,7 @@ def helloworld():
 def book_author(id_book:int, id_sin):
     if id_sin == None:
         id_sin = 'n/a'
-    elif id_sin == '....':
+    elif id_sin != '....':
         pass
     else:
         raise HTTPException(status_code=404, detail="record not foundS")
