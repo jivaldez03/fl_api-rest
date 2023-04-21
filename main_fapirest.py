@@ -10,7 +10,8 @@ pip install uvicorn
 // crear programa con función
 //activar uvicorn
 
-uvicorn main:app --reload
+uvicorn main:app --reload --host 
+uvicorn main_fapirest:app --reload --host localhost --port 3000
 """
 from fastapi import HTTPException #, FastAPI
 #from pydantic import BaseModel
@@ -33,11 +34,51 @@ class Book(BaseModel):
 
 @app.get("/")
 def index():
-    return "hello pythonician"
+    return "Hello EVERYBODY ..... dELTA-pHASE is now working for you"
 
 @app.get("/hello")
 def helloworld():
     return {'message': "hello world"}
+
+@app.get("/get_/categories/{user_id}")
+def get_categories_subc(user_id):
+    listcat = [{ 'category': 'Anathomy'
+                        , 'idCat': 'cat.01.01'
+                        , 'subcategories' : [
+                            {'subcategory': 'human body' , 'idSCat': 'scat.01.01'}
+                            , {'subcategory': 'human skeleton' , 'idSCat': 'scat.01.02'}
+                            , {'subcategory': '_alls' , 'idSCat': 'scat.01.00'}
+                        ]
+                }
+                , {'category': 'Animals'
+                        , 'idCat': 'cat.01.02'
+                        , 'subcategories' : [
+                            {'subcategory': 'aquatics' , 'idSCat': 'scat.03.01'}
+                            , {'subcategory': 'amphibians' , 'idSCat': 'scat.03.02'}
+                            , {'subcategory': 'mamals' , 'idSCat': 'scat.03.03'}
+                            , {'subcategory': '_alls' , 'idSCat': 'scat.03.00'}
+                        ]        
+                }, {'category': 'Music'
+                        , 'idCat': 'cat.01.04'
+                        , 'subcategories' : [
+                            {'subcategory': 'Instruments' , 'idSCat': 'scat.04.01'}
+                            , {'subcategory': 'Famous Classical Compositors' , 'idSCat': 'scat.04.02'}
+                            , {'subcategory': 'Famous Jazz Musician' , 'idSCat': 'scat.04.03'}
+                            , {'subcategory': '_alls' , 'idSCat': 'scat.04.00'}
+                        ]        
+                }, {'category': 'Geography'
+                        , 'idCat': 'cat.01.05'
+                        , 'subcategories' : [
+                            {'subcategory': 'Mountains' , 'idSCat': 'scat.05.01'}
+                            , {'subcategory': 'Rivers' , 'idSCat': 'scat.05.02'}
+                            , {'subcategory': 'Continents/Oceans/Gulfs' , 'idSCat': 'scat.05.03'}
+                            , {'subcategory': 'Countries/Capitals' , 'idSCat': 'scat.05.03'}
+                            , {'subcategory': '_alls' , 'idSCat': 'scat.05.00'}
+                        ]        
+                }
+               ]
+    return {'message': listcat}
+
 
 @app.get("/books/author/{id_book} {id_sin}")
 def book_author(id_book:int, id_sin):
@@ -46,7 +87,7 @@ def book_author(id_book:int, id_sin):
     elif id_sin != '....':
         pass
     else:
-        raise HTTPException(status_code=404, detail="record not foundS")
+        raise HTTPException(status_code=404, detail="record not found")
 
     return {'id': id_book
             ,'author': 'Jorge Iduvas'
