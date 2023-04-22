@@ -14,9 +14,6 @@ uvicorn main:app --reload --host
 uvicorn main_fapirest:app --reload --host localhost --port 3000
 """
 from fastapi import HTTPException #, FastAPI
-#from pydantic import BaseModel
-#from typing import Optional
-
 from app import create_app
 from app.model.md_books import Book
 from uuid import  uuid4 as uuid
@@ -25,6 +22,20 @@ app = create_app()
 
 
 """
+
+
+import requests
+
+url = 'https://fl-api-rest.herokuapp.com/get_/categories/jcdelangel'
+
+data = requests.get(url)
+
+if data.status_code == 200: # ok
+	datas = data.json()
+	for data in datas:
+		print(data)
+          
+
 class Book(BaseModel):
     title: str
     author: str
