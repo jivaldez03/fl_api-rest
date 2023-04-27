@@ -22,20 +22,14 @@ app = create_app()
 
 
 """
-
-
 import requests
-
 url = 'https://fl-api-rest.herokuapp.com/get_/categories/jcdelangel'
-
 data = requests.get(url)
-
 if data.status_code == 200: # ok
 	datas = data.json()
 	for data in datas:
 		print(data)
           
-
 class Book(BaseModel):
     title: str
     author: str
@@ -90,7 +84,22 @@ def get_categories_subc(user_id):
                ]
     return {'message': listcat}
 
+@app.get("/get_/user_words/{user_id} {idSCatName}")
+def get_user_words(user_id, idSCatName):
+    sdict = {'idUser': 'jivaldez03', 'subCat': 'kitchen', 
+            'slSource': ['kettle', 'toaster', 'microwave oven', 
+                          'refrigerator (“fridge”)', 'dishwasher', 
+                          'breadbox', 'pitcher (or jug)', 'blender'], 
+            'slTarget': ['tetera', 'tostador', 'microondas', 
+                         'refrigerador', 'lavavajillas', 
+                         'panera', 'jarra', 'batidora']}
+    npackage = []
+    prnFileName, prnLink = '', ''
+    for gia, value in enumerate(sdict['slSource']):
+        npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
+    return npackage
 
+"""
 @app.get("/books/author/{id_book} {id_sin}")
 def book_author(id_book:int, id_sin):
     if id_sin == None:
@@ -109,10 +118,11 @@ def book_author(id_book:int, id_sin):
 def new_book(book: Book):
     return {'message': f"{book.title} insertado"
             }
-
+"""
 #resp = make_response(redirect('http://127.0.0.1:8000/hello'))
 #print(resp)
 
 
-#if __name__ == "__main__":
-#	app.run(host='0.0.0.0', port=3000, debug=True)
+if __name__ == "__main__":
+	app.run(host='0.0.0.0', port=3000, debug=True)
+        
