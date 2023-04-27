@@ -17,6 +17,7 @@ from fastapi import HTTPException #, FastAPI
 from app import create_app
 from app.model.md_books import Book
 from uuid import  uuid4 as uuid
+from random import randint 
 
 app = create_app()
 
@@ -86,13 +87,23 @@ def get_categories_subc(user_id):
 
 @app.get("/get_/user_words/{user_id} {idSCatName}")
 def get_user_words(user_id, idSCatName):
-    sdict = {'idUser': 'jivaldez03', 'subCat': 'kitchen', 
-            'slSource': ['kettle', 'toaster', 'microwave oven', 
-                          'refrigerator (“fridge”)', 'dishwasher', 
-                          'breadbox', 'pitcher (or jug)', 'blender'], 
-            'slTarget': ['tetera', 'tostador', 'microondas', 
-                         'refrigerador', 'lavavajillas', 
-                         'panera', 'jarra', 'batidora']}
+    if randint(1,10) < 5:
+        sdict = {'idUser': 'jivaldez03', 'subCat': 'kitchen', 
+                'slSource': ['kettle', 'toaster', 'microwave oven', 
+                            'refrigerator (“fridge”)', 'dishwasher', 
+                            'breadbox', 'pitcher (or jug)', 'blender'], 
+                'slTarget': ['tetera', 'tostador', 'microondas', 
+                            'refrigerador', 'lavavajillas', 
+                            'panera', 'jarra', 'batidora']}
+    else:
+        sdict = {'idUser': 'jivaldez03', 'subCat': 'Sentences', 
+                'slSource': ['good morning', 'good afternoon', 'good evening', 
+                             'good night', 'goodbye', 'my name is ~ laura ~', 
+                             'see you soon', 'see you later'], 
+                'slTarget': ['buenos días', 'buenas tardes', 
+                             'buenas noches (al llegar)', 'buenas noches', 
+                             'adiós', 'mi nombre es laura', 
+                             'te veo pronto', 'te veo mas tarde']}
     npackage = []
     prnFileName, prnLink = '', ''
     for gia, value in enumerate(sdict['slSource']):
