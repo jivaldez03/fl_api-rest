@@ -134,7 +134,7 @@ def new_book(book: Book):
 #resp = make_response(redirect('http://127.0.0.1:8000/hello'))
 #print(resp)
 
-
+"""
 @app.get("/get_/user_words_neo/{user_id} {idSCatName}")
 def get_user_words_neo(user_id, idSCatName):  
     user = 'admin'
@@ -164,11 +164,11 @@ def get_user_words_neo(user_id, idSCatName):
     if session == None:
         app, session, log = trx.connectNeo4j(user, 'cat&subcat updating')
 
-    print(app, session)
+    #print(app, session)
     nodes, log = trx.neo4j_exec(session, user,
                         log_description="getting words for user",
                         statement=ne04j_statement)
-    print(type(nodes))
+    #print(type(nodes))
     for node in nodes:
         sdict = dict(node)        
         #print(dict(node))
@@ -177,15 +177,77 @@ def get_user_words_neo(user_id, idSCatName):
         for gia, value in enumerate(sdict['slSource']):
             npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
     return npackage
-    """
+"""
+
+@app.get("/get_/user_words_neo_uSCat/{user_id} {idSCat}")
+def get_user_words_neo_uSCat(user_id:str, idSCat:int):  
+    user = 'admin'
+    app = None
+    session = None
+    if session == None:
+        app, session, log = trx.connectNeo4j(user, 'cat&subcat updating')
+
+    ne04j_statement_pre = "match (o:Organization)<-[]-(c:Category)" + \
+                            "<-[:CAT_SUBCAT]-(s:SubCategory {idSCat:" + str(idSCat) + "}) " + \
+                            "return o.idOrg as idOrg, o.lSource as lSource, " + \
+                                    "o.lTarget as lTarget, s.name as idSCatName limit 1" 
+    
+    nodes, log = trx.neo4j_exec(session, user,
+                        log_description="getting words for user",
+                        statement=ne04j_statement_pre)
+        
+    #print(f"nodes : {sdict} , {len(sdict)}")
     npackage = []
-    prnFileName, prnLink = '', ''
-    for gia, value in enumerate(sdict['slSource']):
-        npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
+    continueflag = False
+    for node in nodes:
+        print("---------------en ciclo nodes")
+        continueflag = True
+        sdict = dict(node) 
+        lgSource = sdict["lSource"]
+        lgTarget = sdict["lTarget"]
+        idOrg = sdict["idOrg"]
+        idSCatName = sdict["idSCatName"]
+        print(f"results for idSCat : ", lgSource, lgTarget, idOrg, idSCatName)
+        idSCatName = idSCatName.replace("/","").replace(" ","")
+        print(f"results for idSCat : ", lgSource, lgTarget, idOrg, idSCatName)
+    if continueflag:
+        if idSCat == 1:
+            ne04j_statement = "match (u:User {alias:'" + user_id + "'}) " + \
+                    "match (n:Word:" + lgSource + ")-[tes:TRANSLATOR]->" + \
+                    "(s:Word:" + lgTarget + ") " + \
+                    "where  not n.word in u.words or u.words is NULL " + \
+                    "with u, n, s, tes " + \
+                    "order by n.wordranking, tes.sorded " + \
+                    "with u, n, collect(s.word) as swlist " + \
+                    "with u, collect(n.word) as ewlist, collect(swlist) as swlist " + \
+                    "return u.alias as idUser, 'words' as subCat, " + \
+                            "ewlist[0..8] as slSource, swlist[0..8] as slTarget"
+        elif idSCat != 1:
+            ne04j_statement = "match (u:User {alias:'" + user_id + "'}) " + \
+                        "match (c:Category)-[:CAT_SUBCAT]-(s:SubCategory {idSCat:" + str(idSCat) + "}) " + \
+                        "match (s)-[scat:SUBCAT]-(ew:ElemSubCat:" + lgSource + ")-[:TRANSLATOR]-" + \
+                            "(sw:ElemSubCat:" + lgTarget + ") " + \
+                        "where  not ew.word in u." + idSCatName + " or u." + idSCatName + " is NULL " + \
+                        "with s, u, ew, sw, scat " + \
+                        "order by scat.wordranking " + \
+                        "with s, u, collect(ew.word) as ewlist, collect(sw.word) as swlist " + \
+                        "return u.alias as idUser, s.name as subCat, " + \
+                                "ewlist[0..8] as slSource, swlist[0..8] as slTarget"
+                
+        nodes, log = trx.neo4j_exec(session, user,
+                            log_description="getting words for user",
+                            statement=ne04j_statement)
+        for node in nodes:
+            sdict = dict(node)        
+            #print(dict(node))
+            npackage = []
+            prnFileName, prnLink = '', ''
+            for gia, value in enumerate(sdict['slSource']):
+                npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
+
     return npackage
-    """
-    #return True
-     
+
+
 if __name__ == "__main__":
 	app.run(host='0.0.0.0', port=3000, debug=True)
         
