@@ -18,6 +18,7 @@ from app import create_app
 from app.model.md_books import Book
 from uuid import  uuid4 as uuid
 from random import randint 
+from _neo4j import neo4j_operations as trx
 
 app = create_app()
 
@@ -134,6 +135,57 @@ def new_book(book: Book):
 #print(resp)
 
 
+@app.get("/get_/user_words_neo/{user_id} {idSCatName}")
+def get_user_words_neo(user_id, idSCatName):  
+    user = 'admin'
+    app = None
+    session = None
+    if session == None:
+        app, session, log = trx.connectNeo4j(user, 'cat&subcat updating')
+
+    idUser = 'jivaldez03'
+    idCatName = 'Sentences' #'Home'
+    idSCatName = 'Sentences' #'kitchen'
+    lgSource = 'English'
+    lgTarget = 'Spanish'
+
+    ne04j_statement = "match (u:User {alias:'" + idUser + "'}) " + \
+                "match (c:Category {name:'" + idCatName + "'})-[:CAT_SUBCAT]-" +\
+                    "(s:SubCategory {name:'" + idSCatName + "'}) " + \
+                "match (s)-[scat:SUBCAT]-(ew:ElemSubCat:" + lgSource + ")-[:TRANSLATOR]-" + \
+                    "(sw:ElemSubCat:" + lgTarget + ") " + \
+                "where  not ew.word in u." + idSCatName + " or u." + idSCatName + " is NULL " + \
+                "with s, u, ew, sw, scat " + \
+                "order by scat.wordranking " + \
+                "with s, u, collect(ew.word) as ewlist, collect(sw.word) as swlist " + \
+                "return u.alias as idUser, s.name as subCat, " + \
+                        "ewlist[0..8] as slSource, swlist[0..8] as slTarget"
+
+    if session == None:
+        app, session, log = trx.connectNeo4j(user, 'cat&subcat updating')
+
+    print(app, session)
+    nodes, log = trx.neo4j_exec(session, user,
+                        log_description="getting words for user",
+                        statement=ne04j_statement)
+    print(type(nodes))
+    for node in nodes:
+        sdict = dict(node)        
+        #print(dict(node))
+        npackage = []
+        prnFileName, prnLink = '', ''
+        for gia, value in enumerate(sdict['slSource']):
+            npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
+    return npackage
+    """
+    npackage = []
+    prnFileName, prnLink = '', ''
+    for gia, value in enumerate(sdict['slSource']):
+        npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
+    return npackage
+    """
+    #return True
+     
 if __name__ == "__main__":
 	app.run(host='0.0.0.0', port=3000, debug=True)
         
