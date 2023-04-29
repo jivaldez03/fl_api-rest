@@ -86,6 +86,48 @@ def get_categories_subc(user_id):
                ]
     return {'message': listcat}
 
+
+@app.get("/get_/categories2/{user_id}")
+def get_categories2(user_id):
+    listcat = [{ 'category': 'Anathomy'
+                        , 'idCat': 'cat.01.01'
+                        , 'subcategories' : [
+                            {'subcategory': 'human body' , 'idSCat': 'scat.01.01'}
+                            , {'subcategory': 'human skeleton' , 'idSCat': 'scat.01.02'}
+                            , {'subcategory': '_alls' , 'idSCat': 'scat.01.00'}
+                        ]
+                }
+               ]
+    user = 'admin'
+    app = None
+    session = None
+    if session == None:
+        app, session, log = trx.connectNeo4j(user, 'cat&subcat updating')
+
+    ne04j_statement = "match (o:Organization {idOrg:'DTL-01'})<-[]-(c:Category)<--(s:SubCategory) " + \
+                        "with c, s.name as subcategory, s.idSCat as idSCat " + \
+                        "order by c.name, subcategory " + \
+                        "return c.name as category, c.idCat as idCat, " + \
+                                "collect(subcategory) as subcategories, collect(idSCat) as subid" 
+    
+    nodes, log = trx.neo4j_exec(session, user,
+                        log_description="getting words for user",
+                        statement=ne04j_statement)
+    listcat = []
+    for node in nodes:
+        sdict = dict(node)        
+        #print(dict(node))
+        subcat_list = []
+        ndic = {'Category': sdict["category"], 'idCat' : sdict["idCat"]}
+        for gia, value in enumerate(sdict['subcategories']):
+            subs = {'subcategory': value , 'idSCat': sdict["subid"][gia]}
+            subcat_list.append(subs)
+            #npackage.append((value, sdict["slTarget"][gia], gia + 1 ))        
+        ndic["subcategories"] = subcat_list[:]
+        listcat.append(ndic)
+
+    return {'message': listcat}
+
 @app.get("/get_/user_words/{user_id} {idSCatName}")
 def get_user_words(user_id, idSCatName):
     if randint(1,10) < 5:
@@ -179,8 +221,8 @@ def get_user_words_neo(user_id, idSCatName):
     return npackage
 """
 
-@app.get("/get_/user_words_neo_uSCat/{user_id} {idSCat}")
-def get_user_words_neo_uSCat(user_id:str, idSCat:int):  
+@app.get("/get_/user_words2/{user_id} {idSCat}")
+def get_user_words2(user_id:str, idSCat:int):  
     user = 'admin'
     app = None
     session = None
