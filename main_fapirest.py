@@ -155,14 +155,15 @@ def get_user_words(user_id, idSCatName):
         npackage.append((value, sdict["slTarget"][gia], gia + 1, prnFileName, prnLink))
     return npackage
 
-@app.get("/get_/get_testing_Heroku/{user_id} {idSCatName}")
+"""
+@app.get("/get_/get_testing_Heroku")
 def get_testing_Heroku(user_id, idSCatName):
     s_url = 'https://fl-api-rest.herokuapp.com/get_/user_words2/ijcesar%2012'
     rHeroku = geturl(s_url)
     print(f"geturlStatus: {rHeroku.status_code} on url = {s_url}")
     print(f"get: {rHeroku.text}")
     return rHeroku.text
-
+"""
 
 """
 @app.get("/books/author/{id_book} {id_sin}")
@@ -302,5 +303,5 @@ def get_user_words2(user_id:str, idSCat:int):
 
 
 if __name__ == "__main__":
-	app.run(host='0.0.0.0', port=4000, debug=True)
+	app.run(host='0.0.0.0', port=3000, debug=True)
         
